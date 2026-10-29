@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14b87c"/>
+      <stop offset="1" stop-color="#05613d"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="0.3" cy="0.25" r="0.9">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.22"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#00331f" flood-opacity="0.35"/>
+    </filter>
+  </defs><rect width="512" height="512" rx="115" fill="url(#bg)"/><rect width="512" height="512" rx="115" fill="url(#shine)"/>
+    <g transform="translate(0 0) scale(1)">
+    <g filter="url(#shadow)">
+      
+    <path d="M115.0 204.7 A150 150 0 0 1 381.8 174.3" fill="none"
+      stroke="#ffffff" stroke-width="40" stroke-linecap="round"/>
+    <path d="M411.0 236.8 L423.5 154.9 L340.1 193.7 Z"
+      fill="#ffffff" stroke="#ffffff" stroke-width="10" stroke-linejoin="round"/>
+      
+    <path d="M397.0 307.3 A150 150 0 0 1 130.2 337.7" fill="none"
+      stroke="#ffa155" stroke-width="40" stroke-linecap="round"/>
+    <path d="M101.0 275.2 L88.5 357.1 L171.9 318.3 Z"
+      fill="#ffa155" stroke="#ffa155" stroke-width="10" stroke-linejoin="round"/>
+      <circle cx="256" cy="256" r="84" fill="#fff"/>
+      
+    <g fill="none" stroke="#05613d" stroke-width="17" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M226.9 214.3 H285.1"/>
+      <path d="M226.9 237.2 H285.1"/>
+      <path d="M235.2 214.3 C285.1 214.3 285.1 264.2 235.2 264.2"/>
+      <path d="M235.2 264.2 L276.8 303.8"/>
+    </g>
+    </g></g></svg>
