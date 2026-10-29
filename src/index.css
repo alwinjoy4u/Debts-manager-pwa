@@ -1,0 +1,481 @@
+:root {
+  --bg: #f4f6f5;
+  --surface: #ffffff;
+  --text: #17201c;
+  --muted: #66716c;
+  --border: #dde3e0;
+  --accent: #00875a;
+  --accent-text: #ffffff;
+  --owes-me: #00875a;
+  --i-owe: #c2410c;
+  --danger: #c62828;
+  --warn: #b45309;
+  --radius: 14px;
+
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light dark;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1412;
+    --surface: #1a211e;
+    --text: #e8eeeb;
+    --muted: #93a09a;
+    --border: #2b3530;
+    --owes-me: #34d399;
+    --i-owe: #fb923c;
+    --danger: #f87171;
+    --warn: #fbbf24;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px calc(32px + env(safe-area-inset-bottom));
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: env(safe-area-inset-top);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Buttons */
+
+button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0.55em 1em;
+  cursor: pointer;
+  color: var(--text);
+  background: transparent;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+button.ghost {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button.link {
+  padding: 8px 0;
+  color: var(--muted);
+}
+
+button.icon {
+  padding: 0 8px;
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+button.name-link {
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline dotted var(--muted);
+  text-underline-offset: 3px;
+}
+
+.person-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+}
+
+.people-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -4px;
+}
+
+.people-chips .chip {
+  padding: 0.3em 0.8em;
+  font-size: 0.85rem;
+}
+
+/* Summary */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stat span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stat strong {
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+
+.stat.owes_me strong {
+  color: var(--owes-me);
+}
+
+.stat.i_owe strong,
+.stat.net.negative strong {
+  color: var(--i-owe);
+}
+
+/* Filters */
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0 12px;
+  overflow-x: auto;
+}
+
+.chip {
+  border-color: var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.chip.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+/* Cards */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list.settled {
+  opacity: 0.75;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+section.card {
+  margin-bottom: 16px;
+}
+
+.card.owes_me {
+  border-left-color: var(--owes-me);
+}
+
+.card.i_owe {
+  border-left-color: var(--i-owe);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-amount {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-amount strong {
+  font-size: 1.25rem;
+}
+
+.card.owes_me .card-amount strong {
+  color: var(--owes-me);
+}
+
+.card.i_owe .card-amount strong {
+  color: var(--i-owe);
+}
+
+.card.status-settled .card-amount strong {
+  color: var(--muted);
+}
+
+.note {
+  font-size: 0.9rem;
+}
+
+.badge {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.badge.overdue {
+  color: var(--danger);
+}
+
+.badge.soon {
+  color: var(--warn);
+}
+
+.badge.settled {
+  color: var(--muted);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress div {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.card .actions button {
+  padding: 0.45em 0.8em;
+  font-size: 0.85rem;
+}
+
+.paid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -6px;
+}
+
+.paid-row .link {
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.history li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.9rem;
+}
+
+/* Forms */
+
+.debt-form,
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-form {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+input {
+  font: inherit;
+  font-size: 1rem; /* 16px stops iOS zooming into inputs */
+  font-weight: 400;
+  padding: 0.6em 0.7em;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+  min-width: 0;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.error {
+  color: var(--danger);
+  font-weight: 400;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.segmented button.active {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+}
+
+.segmented button.active.owes_me {
+  color: var(--owes-me);
+}
+
+.segmented button.active.i_owe {
+  color: var(--i-owe);
+}
+
+/* Empty state & footer */
+
+.empty {
+  text-align: center;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+footer .actions {
+  justify-content: flex-start;
+}
+
+.message {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 380px) {
+  .row {
+    flex-direction: column;
+  }
+}
