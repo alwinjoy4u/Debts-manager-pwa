@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import DebtCard from "./components/DebtCard";
 import DebtForm from "./components/DebtForm";
+import PersonCard from "./components/PersonCard";
 import {
   addDebtToDB,
   deleteDebtFromDB,
@@ -9,7 +10,14 @@ import {
   replaceAllDebtsInDB,
   updateDebtInDB,
 } from "./db";
-import { formatMoney, isSettled, remaining, round2, todayISO } from "./utils";
+import {
+  formatMoney,
+  isSettled,
+  remaining,
+  round2,
+  summarizePerson,
+  todayISO,
+} from "./utils";
 
 const FILTERS = [
   ["all", "All"],
@@ -27,6 +35,20 @@ function compareDebts(a, b) {
     return a.dueDate < b.dueDate ? -1 : 1;
   }
   return (b.createdAt || "").localeCompare(a.createdAt || "");
+}
+
+const STATUS_ORDER = { overdue: 0, soon: 1, open: 2, settled: 3 };
+
+// Overdue people first, then by next due date, then most recently added.
+function comparePeople(a, b) {
+  const status = STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+  if (status) return status;
+  if (a.nextDue !== b.nextDue) {
+    if (!a.nextDue) return 1;
+    if (!b.nextDue) return -1;
+    return a.nextDue < b.nextDue ? -1 : 1;
+  }
+  return b.lastAdded.localeCompare(a.lastAdded);
 }
 
 export default function App() {
@@ -61,7 +83,10 @@ export default function App() {
 
   const deleteDebt = async (id) => {
     await deleteDebtFromDB(id);
-    await refresh();
+    const all = await getAllDebtsFromDB();
+    setDebts(all);
+    // Leave the person's page once their last debt is gone.
+    if (person && !all.some((d) => d.name === person)) setPerson(null);
   };
 
   // Everyone seen so far, most recently added first.
@@ -77,16 +102,37 @@ export default function App() {
     [debts, person]
   );
 
-  const totals = useMemo(() => {
-    const t = { owes_me: 0, i_owe: 0 };
-    for (const d of scoped) t[d.type] += Math.max(remaining(d), 0);
-    return {
-      owesMe: round2(t.owes_me),
-      iOwe: round2(t.i_owe),
-      net: round2(t.owes_me - t.i_owe),
-    };
-  }, [scoped]);
+  // Each person's debts combined into one balance.
+  const summaries = useMemo(() => {
+    const byName = new Map();
+    for (const d of debts) byName.set(d.name, [...(byName.get(d.name) || []), d]);
+    return [...byName].map(([name, list]) => summarizePerson(name, list));
+  }, [debts]);
 
+  // A person's page adds up their individual debts; the main screen adds up
+  // each person's net balance, so it matches the per-person cards.
+  const totals = useMemo(() => {
+    let owesMe = 0;
+    let iOwe = 0;
+    if (person) {
+      for (const d of scoped) {
+        if (d.type === "owes_me") owesMe += Math.max(remaining(d), 0);
+        else iOwe += Math.max(remaining(d), 0);
+      }
+    } else {
+      for (const { net } of summaries) {
+        if (net > 0) owesMe += net;
+        else iOwe -= net;
+      }
+    }
+    return {
+      owesMe: round2(owesMe),
+      iOwe: round2(iOwe),
+      net: round2(owesMe - iOwe),
+    };
+  }, [summaries, scoped, person]);
+
+  // On a person's page: their individual debts.
   const visible = useMemo(() => {
     const list = scoped.filter((d) => filter === "all" || d.type === filter);
     return {
@@ -95,9 +141,28 @@ export default function App() {
     };
   }, [scoped, filter]);
 
+  // On the main screen: one combined balance per person.
+  const people = useMemo(() => {
+    const list = summaries
+      .filter(
+        (p) =>
+          filter === "all" ||
+          (filter === "owes_me" ? p.net > 0 : p.net < 0)
+      )
+      .sort(comparePeople);
+    return {
+      open: list.filter((p) => p.openCount > 0),
+      settled: list.filter((p) => p.openCount === 0),
+    };
+  }, [summaries, filter]);
+
+  const shown = person ? visible : people;
+
   const selectPerson = (name) => {
     setPerson(name);
     setFilter("all");
+    // Someone with only settled debts would otherwise open to an empty page.
+    setShowSettled(debts.every((d) => d.name !== name || isSettled(d)));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -140,6 +205,19 @@ export default function App() {
     setMessage(`Restored ${pendingImport.length} debts from backup.`);
     setPendingImport(null);
   };
+
+  const renderItem = (item) =>
+    person ? (
+      <DebtCard
+        key={item.id}
+        debt={item}
+        names={names}
+        onUpdate={updateDebt}
+        onDelete={deleteDebt}
+      />
+    ) : (
+      <PersonCard key={item.name} person={item} onOpen={selectPerson} />
+    );
 
   return (
     <div className="app">
@@ -217,39 +295,21 @@ export default function App() {
       )}
 
       <ul className="list">
-        {visible.open.map((d) => (
-          <DebtCard
-            key={d.id}
-            debt={d}
-            names={names}
-            onUpdate={updateDebt}
-            onDelete={deleteDebt}
-            onSelectPerson={person ? null : selectPerson}
-          />
-        ))}
+        {shown.open.map((item) => renderItem(item))}
       </ul>
 
-      {loaded && debts.length > 0 && visible.open.length === 0 && (
+      {loaded && debts.length > 0 && shown.open.length === 0 && (
         <p className="empty muted">Nothing outstanding here 🎉</p>
       )}
 
-      {visible.settled.length > 0 && (
+      {shown.settled.length > 0 && (
         <>
           <button className="link" onClick={() => setShowSettled(!showSettled)}>
-            {showSettled ? "Hide" : "Show"} settled ({visible.settled.length})
+            {showSettled ? "Hide" : "Show"} settled ({shown.settled.length})
           </button>
           {showSettled && (
             <ul className="list settled">
-              {visible.settled.map((d) => (
-                <DebtCard
-                  key={d.id}
-                  debt={d}
-                  names={names}
-                  onUpdate={updateDebt}
-                  onDelete={deleteDebt}
-                  onSelectPerson={person ? null : selectPerson}
-                />
-              ))}
+              {shown.settled.map((item) => renderItem(item))}
             </ul>
           )}
         </>

@@ -128,12 +128,14 @@ button.icon {
   color: var(--muted);
 }
 
-button.name-link {
+button.person-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
   padding: 0;
-  font: inherit;
+  font-weight: 400;
   text-align: left;
-  text-decoration: underline dotted var(--muted);
-  text-underline-offset: 3px;
 }
 
 .person-banner {

@@ -6,6 +6,7 @@ import {
   formatDate,
   formatMoney,
   remaining,
+  toLocalISO,
   totalPaid,
 } from "../utils";
 
@@ -15,7 +16,7 @@ const STATUS_LABEL = {
   soon: "Due soon",
 };
 
-export default function DebtCard({ debt, names, onUpdate, onDelete, onSelectPerson }) {
+export default function DebtCard({ debt, names, onUpdate, onDelete }) {
   // null | "edit" | "pay" | "confirm-delete"
   const [mode, setMode] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -23,6 +24,7 @@ export default function DebtCard({ debt, names, onUpdate, onDelete, onSelectPers
   const paid = totalPaid(debt);
   const left = remaining(debt);
   const status = dueStatus(debt);
+  const added = debt.createdAt ? toLocalISO(debt.createdAt) : "";
   const progress = Math.min(100, (paid / debt.amount) * 100) || 0;
 
   if (mode === "edit") {
@@ -55,21 +57,11 @@ export default function DebtCard({ debt, names, onUpdate, onDelete, onSelectPers
     <li className={`card ${debt.type} status-${status}`}>
       <div className="card-head">
         <div>
-          <h3>
-            {onSelectPerson ? (
-              <button
-                className="name-link"
-                title={`Everything with ${debt.name}`}
-                onClick={() => onSelectPerson(debt.name)}
-              >
-                {debt.name}
-              </button>
-            ) : (
-              debt.name
-            )}
-          </h3>
+          {/* The person's name is already in the page header. */}
+          <h3>{debt.note || `Added ${formatDate(added)}`}</h3>
           <p className="muted">
             {debt.type === "owes_me" ? "Owes you" : "You owe"}
+            {debt.note && added && <> · added {formatDate(added)}</>}
             {debt.dueDate && <> · due {formatDate(debt.dueDate)}</>}
           </p>
         </div>
@@ -82,7 +74,6 @@ export default function DebtCard({ debt, names, onUpdate, onDelete, onSelectPers
       {STATUS_LABEL[status] && (
         <span className={`badge ${status}`}>{STATUS_LABEL[status]}</span>
       )}
-      {debt.note && <p className="note">{debt.note}</p>}
 
       <div className="progress" aria-label={`${Math.round(progress)}% paid`}>
         <div style={{ width: `${progress}%` }} />
